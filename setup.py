@@ -1,4 +1,5 @@
 import os
+import sys
 from ast import main
 from glob import glob
 
@@ -16,7 +17,11 @@ def main():
     # Sort input source files if you glob sources to ensure bit-for-bit
     # reproducible builds (https://github.com/pybind/python_example/pull/53)
     source_files = sorted(
-        [f for pattern in ["src/*.cpp", "src/**/*.cpp", "src/**/**/*.cpp"] for f in glob(pattern)]
+        [
+            f
+            for pattern in ["src/*.cpp", "src/**/*.cpp", "src/**/**/*.cpp"]
+            for f in glob(pattern)
+        ]
     )
 
     ext_module = Pybind11Extension(
@@ -26,6 +31,12 @@ def main():
     )
     if os.getenv(key="DEBUG", default="").upper() in ["ON", "1", "YES", "TRUE", "Y"]:
         ext_module._add_cflags(["-DDEBUGMODE", "-O0", "-g"])
+
+    # Force target
+    if sys.platform == "darwin":
+        # The code uses std::filesystem (requires 10.15+).
+        # We explicitly force the compiler to target 11.0 (Big Sur) or newer.
+        ext_module.extra_compile_args.append("-mmacosx-version-min=11.0")
 
     setup(
         name="wlplan",

@@ -1,6 +1,6 @@
 #ifndef UTILS_STRINGS
 #define UTILS_STRINGS
-
+#include <sstream> // Fix for missing stringstream definition on some platforms
 #include <regex>
 #include <string>
 #include <vector>
